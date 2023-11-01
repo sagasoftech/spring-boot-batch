@@ -26,7 +26,6 @@ import com.sagasoftech.springboot.batch.repository.CustomerRepository;
 import lombok.AllArgsConstructor;
 
 @Configuration
-@EnableBatchProcessing
 @AllArgsConstructor
 public class SpringBatchConfig {
 
