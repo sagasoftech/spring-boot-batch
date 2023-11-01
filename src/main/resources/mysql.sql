@@ -1,1 +1,1 @@
-docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=wikimedia-user --env MYSQL_PASSWORD=dummypassword --env MYSQL_DATABASE=wikimedia --name mysql_wikimedia --publish 3306:3306 mysql:8-oracle
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=batch-user --env MYSQL_PASSWORD=dummypassword --env MYSQL_DATABASE=springbatch --name mysql_springbatch --publish 3306:3306 mysql:8-oracle
