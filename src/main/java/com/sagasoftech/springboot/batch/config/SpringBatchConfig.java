@@ -1,5 +1,6 @@
 package com.sagasoftech.springboot.batch.config;
 
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -69,4 +70,12 @@ public class SpringBatchConfig {
         return writer;
     }
     
+    @Bean
+    public Step step1() {
+        return stepBuilderFactory.get("csv-step").<Customer, Customer>chunk(10)
+                .reader(reader())
+                .processor(processor())
+                .writer(writer())
+                .build();
+    }
 }
