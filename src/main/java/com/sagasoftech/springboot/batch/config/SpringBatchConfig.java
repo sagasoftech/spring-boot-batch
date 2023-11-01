@@ -5,6 +5,10 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
@@ -14,6 +18,7 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.sagasoftech.springboot.batch.entity.Customer;
 import com.sagasoftech.springboot.batch.repository.CustomerRepository;
@@ -24,10 +29,6 @@ import lombok.AllArgsConstructor;
 @EnableBatchProcessing
 @AllArgsConstructor
 public class SpringBatchConfig {
-
-    private JobBuilderFactory jobBuilderFactory;
-
-    private StepBuilderFactory stepBuilderFactory;
 
     private CustomerRepository customerRepository;
     
@@ -72,18 +73,23 @@ public class SpringBatchConfig {
     }
     
     @Bean
-    public Step step1() {
-        return stepBuilderFactory.get("csv-step").<Customer, Customer>chunk(10)
-                .reader(reader())
-                .processor(processor())
-                .writer(writer())
+    public Step step1(FlatFileItemReader<Customer> reader, CustomerProcessor processor,
+    		RepositoryItemWriter<Customer> writer,JobRepository jobRepository,PlatformTransactionManager transactionManager) {
+        
+        return new StepBuilder("csv-step",jobRepository)
+        		.<Customer, Customer>chunk(10, transactionManager)
+                .reader(reader)
+                .processor(processor)
+                .writer(writer)
                 .build();
     }
     
     @Bean
-    public Job runJob() {
-        return jobBuilderFactory.get("importCustomers")
-                .flow(step1()).end().build();
-
+    public Job job(Step step,JobRepository jobRepository) {
+        return new JobBuilder("importCustomers",jobRepository)
+                .incrementer(new RunIdIncrementer())
+                .flow(step)
+                .end()
+                .build();
     }
 }
