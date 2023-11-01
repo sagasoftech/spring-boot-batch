@@ -1,5 +1,6 @@
 package com.sagasoftech.springboot.batch.config;
 
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -77,5 +78,12 @@ public class SpringBatchConfig {
                 .processor(processor())
                 .writer(writer())
                 .build();
+    }
+    
+    @Bean
+    public Job runJob() {
+        return jobBuilderFactory.get("importCustomers")
+                .flow(step1()).end().build();
+
     }
 }
